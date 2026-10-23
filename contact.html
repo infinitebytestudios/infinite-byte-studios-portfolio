@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#08080d" />
+    <meta
+      name="description"
+      content="Contact Infinite Byte Studios about ideas, collaborations, and digital projects."
+    />
+    <title>Contact — Infinite Byte Studios</title>
+    <!-- Browser tab icons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/images/favicon-16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/images/favicon-32x32.png"
+    />
+
+    <!-- Apple home-screen icon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/images/apple-touch-icon.png"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body data-page="contact" id="top">
+    <div class="site-noise" aria-hidden="true"></div>
+    <header id="site-header"></header>
+
+    <main>
+      <section class="page-hero section-shell">
+        <p class="eyebrow">CONTACT / START SOMETHING</p>
+        <h1>
+          Good ideas start<br /><span class="gradient-text"
+            >with a conversation.</span
+          >
+        </h1>
+        <p>
+          Have a project idea, a question, or an opportunity to collaborate?
+          Send the studio a message.
+        </p>
+      </section>
+
+      <section class="section section-shell contact-layout">
+        <div class="contact-details">
+          <p class="eyebrow">REACH THE STUDIO</p>
+          <h2>Let's talk <span class="gradient-text">details.</span></h2>
+          <p>
+            Tell us what you're thinking about. Include as much or as little
+            detail as you have right now.
+          </p>
+          <div class="contact-email-card">
+            <span class="contact-label">EMAIL</span>
+            <a
+              href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=officialinfinitebytestudios%40gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              officialinfinitebytestudios@gmail.com
+            </a>
+          </div>
+          <div class="contact-note">
+            <span class="status-dot"></span>
+            <p>
+              Your message will be prepared in your email app for you to review
+              before sending.
+            </p>
+          </div>
+        </div>
+
+        <form id="contact-form" class="contact-form">
+          <div class="form-row">
+            <label for="name">Your name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              placeholder="How should we address you?"
+              required
+              maxlength="100"
+            />
+          </div>
+          <div class="form-row">
+            <label for="email">Your email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+              maxlength="200"
+            />
+          </div>
+          <div class="form-row">
+            <label for="subject">What's it about?</label>
+            <select id="subject" name="subject" required>
+              <option value="">Choose a topic</option>
+              <option value="Website project">Website project</option>
+              <option value="App development">App development</option>
+              <option value="Collaboration">Collaboration</option>
+              <option value="Portfolio enquiry">Portfolio enquiry</option>
+              <option value="Something else">Something else</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="message">Your message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="6"
+              placeholder="Tell us a little about your idea…"
+              required
+              maxlength="5000"
+            ></textarea>
+          </div>
+          <button class="button button-primary form-submit" type="submit">
+            Prepare email <span aria-hidden="true">↗</span>
+          </button>
+          <p
+            id="form-status"
+            class="form-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </form>
+      </section>
+    </main>
+
+    <footer id="site-footer"></footer>
+  </body>
+</html>
