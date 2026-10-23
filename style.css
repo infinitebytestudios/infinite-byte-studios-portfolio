@@ -1337,23 +1337,28 @@ p {
   }
 
   .primary-navigation {
-    position: fixed;
+    position: absolute;
     z-index: 60;
-    inset: 72px 0 0;
+    top: 100%;
+    left: 0;
+    right: 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
+    height: calc(100vh - 72px);
+    height: calc(100dvh - 72px);
     padding: 18px 20px 35px;
+    overflow-x: hidden;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     border-top: 1px solid var(--line);
-    background: rgba(8, 8, 13, 0.98);
-
+    background: #08080d;
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
     transform: translateY(-8px);
-
     transition:
       opacity 0.2s ease,
       transform 0.2s ease,
