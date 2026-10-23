@@ -442,7 +442,7 @@ function renderScreenshotGallery(project) {
   `;
 }
 
-/* Full-screen screenshot viewer with zoom and drag */
+/* Full-screen screenshot viewer with pinch and wheel zoom */
 function initScreenshotLightbox() {
   if ($(".screenshot-lightbox")) return;
 
@@ -470,25 +470,25 @@ function initScreenshotLightbox() {
 
   let lastTrigger = null;
 
-  let zoomLevel = 1;
   const minZoom = 1;
   const maxZoom = 4;
-  const zoomStep = 0.25;
 
+  let zoomLevel = 1;
   let translateX = 0;
   let translateY = 0;
 
-  let isDragging = false;
-  let didDrag = false;
-  let startX = 0;
-  let startY = 0;
-  let dragPointerId = null;
+  // Track active pointers so touchscreens can use two-finger pinching.
+  const pointers = new Map();
 
-  /*
-   * Keep the image inside the available viewing area.
-   * The image can move freely while zoomed, but cannot
-   * be dragged completely out of reach.
-   */
+  let pinchStartDistance = 0;
+  let pinchStartZoom = 1;
+  let pinchAnchorX = 0;
+  let pinchAnchorY = 0;
+
+  let lastPointerX = 0;
+  let lastPointerY = 0;
+  let isDragging = false;
+
   function clampPosition() {
     const availableWidth = Math.max(0, window.innerWidth - 48);
     const availableHeight = Math.max(0, window.innerHeight - 112);
@@ -515,19 +515,81 @@ function initScreenshotLightbox() {
     image.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomLevel})`;
 
     image.style.cursor =
-      zoomLevel > minZoom ? (isDragging ? "grabbing" : "grab") : "zoom-in";
+      zoomLevel > minZoom ? (isDragging ? "grabbing" : "grab") : "default";
   }
 
   function resetViewer() {
     zoomLevel = 1;
     translateX = 0;
     translateY = 0;
+
+    pointers.clear();
+    pinchStartDistance = 0;
+    pinchStartZoom = 1;
     isDragging = false;
-    didDrag = false;
-    dragPointerId = null;
 
     image.style.transform = "translate(0, 0) scale(1)";
-    image.style.cursor = "zoom-in";
+    image.style.cursor = "default";
+  }
+
+  function getPointerDistance() {
+    const points = [...pointers.values()];
+
+    if (points.length < 2) return 0;
+
+    return Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
+  }
+
+  function getPointerMidpoint() {
+    const points = [...pointers.values()];
+
+    return {
+      x: (points[0].x + points[1].x) / 2,
+      y: (points[0].y + points[1].y) / 2,
+    };
+  }
+
+  function beginPinch() {
+    if (pointers.size < 2) return;
+
+    isDragging = false;
+    pinchStartDistance = getPointerDistance();
+    pinchStartZoom = zoomLevel;
+
+    if (!pinchStartDistance) return;
+
+    const midpoint = getPointerMidpoint();
+    const rect = image.getBoundingClientRect();
+
+    // Keep the point beneath the fingers anchored while zooming.
+    pinchAnchorX = (midpoint.x - rect.left - rect.width / 2) / zoomLevel;
+
+    pinchAnchorY = (midpoint.y - rect.top - rect.height / 2) / zoomLevel;
+  }
+
+  function updatePinch() {
+    if (pointers.size < 2 || !pinchStartDistance) return;
+
+    const distance = getPointerDistance();
+    const midpoint = getPointerMidpoint();
+
+    const nextZoom = Math.max(
+      minZoom,
+      Math.min(maxZoom, pinchStartZoom * (distance / pinchStartDistance)),
+    );
+
+    // Recover the untransformed image centre.
+    const rect = image.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2 - translateX;
+    const centerY = rect.top + rect.height / 2 - translateY;
+
+    zoomLevel = nextZoom;
+
+    translateX = midpoint.x - centerX - pinchAnchorX * zoomLevel;
+
+    translateY = midpoint.y - centerY - pinchAnchorY * zoomLevel;
+
+    applyZoom();
   }
 
   function zoomByWheel(event) {
@@ -541,14 +603,13 @@ function initScreenshotLightbox() {
 
     zoomLevel = Math.max(
       minZoom,
-      Math.min(maxZoom, zoomLevel + direction * zoomStep),
+      Math.min(maxZoom, zoomLevel + direction * 0.25),
     );
 
     if (zoomLevel === minZoom) {
       translateX = 0;
       translateY = 0;
     } else if (zoomLevel > previousZoom) {
-      // Keep the current pan position when zooming in.
       clampPosition();
     }
 
@@ -559,91 +620,98 @@ function initScreenshotLightbox() {
     passive: false,
   });
 
-  /*
-   * Drag only while zoomed in.
-   * Pointer capture keeps dragging smooth even when the
-   * pointer moves quickly across the image.
-   */
   image.addEventListener("pointerdown", (event) => {
-    if (zoomLevel <= minZoom) return;
-    if (event.button !== 0) return;
-
-    isDragging = true;
-    didDrag = false;
-    dragPointerId = event.pointerId;
-
-    startX = event.clientX - translateX;
-    startY = event.clientY - translateY;
-
-    image.setPointerCapture(event.pointerId);
-    image.style.cursor = "grabbing";
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
 
     event.preventDefault();
+
+    pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    try {
+      image.setPointerCapture(event.pointerId);
+    } catch {
+      // The pointer may already have been released.
+    }
+
+    if (pointers.size >= 2) {
+      beginPinch();
+      return;
+    }
+
+    if (zoomLevel > minZoom) {
+      isDragging = true;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      image.style.cursor = "grabbing";
+    }
   });
 
   image.addEventListener("pointermove", (event) => {
-    if (!isDragging || event.pointerId !== dragPointerId) return;
+    if (!pointers.has(event.pointerId)) return;
 
-    const nextX = event.clientX - startX;
-    const nextY = event.clientY - startY;
+    pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY,
+    });
 
-    if (Math.abs(nextX - translateX) > 2 || Math.abs(nextY - translateY) > 2) {
-      didDrag = true;
+    if (pointers.size >= 2) {
+      updatePinch();
+      return;
     }
 
-    translateX = nextX;
-    translateY = nextY;
+    if (!isDragging || zoomLevel <= minZoom) return;
+
+    translateX += event.clientX - lastPointerX;
+    translateY += event.clientY - lastPointerY;
+
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
 
     applyZoom();
   });
 
-  function stopDragging(event) {
-    if (!isDragging) return;
+  function stopPointer(event) {
+    if (!pointers.has(event.pointerId)) return;
 
-    if (event && dragPointerId !== null && event.pointerId !== dragPointerId) {
-      return;
+    pointers.delete(event.pointerId);
+
+    if (pointers.size < 2) {
+      pinchStartDistance = 0;
     }
 
-    isDragging = false;
-    dragPointerId = null;
+    if (pointers.size === 1 && zoomLevel > minZoom) {
+      const remaining = [...pointers.values()][0];
+
+      isDragging = true;
+      lastPointerX = remaining.x;
+      lastPointerY = remaining.y;
+    } else {
+      isDragging = false;
+    }
 
     applyZoom();
   }
 
-  image.addEventListener("pointerup", stopDragging);
-  image.addEventListener("pointercancel", stopDragging);
-  image.addEventListener("lostpointercapture", stopDragging);
+  image.addEventListener("pointerup", stopPointer);
+  image.addEventListener("pointercancel", stopPointer);
+  image.addEventListener("lostpointercapture", stopPointer);
 
-  /*
-   * Clicking zooms in by one level.
-   * Clicking again at maximum zoom resets the image.
-   * A drag does not accidentally trigger click-to-zoom.
-   */
+  // Clicking or double-clicking the image never changes its zoom.
   image.addEventListener("click", (event) => {
-    if (didDrag) {
-      didDrag = false;
-      event.preventDefault();
-      return;
-    }
-
-    if (!image.src) return;
-
-    if (zoomLevel >= maxZoom) {
-      zoomLevel = minZoom;
-      translateX = 0;
-      translateY = 0;
-    } else {
-      zoomLevel = Math.min(maxZoom, zoomLevel + 1);
-    }
-
-    applyZoom();
+    event.preventDefault();
+    event.stopPropagation();
   });
 
-  /*
-   * Prevent wheel scrolling over empty dialog space from
-   * scrolling the document behind the viewer.
-   * Wheel events on the image are handled above.
-   */
+  image.addEventListener("dblclick", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
   dialog.addEventListener(
     "wheel",
     (event) => {
@@ -654,11 +722,7 @@ function initScreenshotLightbox() {
     { passive: false },
   );
 
-  /*
-   * Open the viewer for dynamically rendered screenshots.
-   * Delegation means this also works after changing pages
-   * or rerendering project content.
-   */
+  // Open screenshots through event delegation.
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Element)) return;
 
