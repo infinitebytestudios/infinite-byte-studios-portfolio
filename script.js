@@ -72,14 +72,18 @@ function renderHeader() {
         id="primary-navigation"
         aria-label="Main navigation">
         ${links
-          .map(
-            (link) => `
+          .map((link) => {
+            const isActive =
+              currentPage === link.page ||
+              (link.page === "projects" && currentPage === "project");
+
+            return `
               <a href="${link.href}"
-                ${currentPage === link.page ? 'aria-current="page"' : ""}>
+                ${isActive ? 'aria-current="page"' : ""}>
                 ${link.label}
               </a>
-            `,
-          )
+            `;
+          })
           .join("")}
 
         <a class="nav-cta" href="contact.html">
