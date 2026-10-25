@@ -861,6 +861,18 @@ function renderProjectDetail(projects) {
 
   document.title = `${project.name} — Infinite Byte Studios`;
 
+  // Apply the selected project's accent theme.
+  document.body.dataset.projectAccent = project.accent;
+
+  document.documentElement.style.setProperty(
+    "--project-accent",
+    project.accentColor || "#9864ff",
+  );
+
+  document.documentElement.style.setProperty(
+    "--project-accent-glow",
+    project.accentGlow || "rgba(152, 100, 255, 0.20)",
+  );
   const features = project.features
     .map((feature) => `<li>${escapeHTML(feature)}</li>`)
     .join("");
@@ -1077,20 +1089,20 @@ async function init() {
   initContactForm();
   initBackToTop();
 
+  const page = document.body.dataset.page;
+
+  // These pages do not need project data.
+  if (!["home", "projects", "project"].includes(page)) return;
+
   try {
     const projects = await loadProjects();
-    const page = document.body.dataset.page;
 
     if (page === "home") {
       renderProjectCollection(projects.slice(0, 3), "#featured-projects");
-    }
-
-    if (page === "projects") {
+    } else if (page === "projects") {
       renderProjectCollection(projects, "#all-projects");
       initFilters(projects);
-    }
-
-    if (page === "project") {
+    } else if (page === "project") {
       renderProjectDetail(projects);
     }
   } catch (error) {
@@ -1100,8 +1112,7 @@ async function init() {
       <div class="load-error">
         <h2>We couldn't load the projects.</h2>
         <p>
-          Run this site using Live Server and check that
-          assets/projects.json exists and contains valid JSON.
+          Check that assets/projects.json exists and contains valid JSON.
         </p>
       </div>
     `;
