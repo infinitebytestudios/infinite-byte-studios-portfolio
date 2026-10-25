@@ -555,23 +555,23 @@ p {
 }
 
 .project-skycast {
-  --project-glow: rgba(51, 155, 255, 0.2);
+  --project-glow: var(--project-accent-glow, rgba(51, 155, 255, 0.2));
 }
 
 .project-nexora {
-  --project-glow: rgba(160, 130, 255, 0.17);
+  --project-glow: var(--project-accent-glow, rgba(160, 130, 255, 0.17));
 }
 
 .project-apex {
-  --project-glow: rgba(210, 220, 240, 0.12);
+  --project-glow: var(--project-accent-glow, rgba(210, 220, 240, 0.12));
 }
 
 .project-saffron {
-  --project-glow: rgba(226, 150, 60, 0.14);
+  --project-glow: var(--project-accent-glow, rgba(226, 150, 60, 0.14));
 }
 
 .project-cookify {
-  --project-glow: rgba(75, 220, 165, 0.14);
+  --project-glow: var(--project-accent-glow, rgba(75, 220, 165, 0.14));
 }
 
 .project-logo {
@@ -1877,12 +1877,21 @@ body:has(.screenshot-lightbox[open]) {
     transition-duration: 0.01ms !important;
   }
 
-  .screenshot-card:hover {
+  .screenshot-card:hover,
+  .not-found-secondary:hover {
     transform: none;
   }
 
-  .screenshot-open-hint {
+  .screenshot-open-hint,
+  .not-found-secondary {
     transition: none;
+  }
+
+  body[data-page="project"] *,
+  body[data-page="project"] *::before,
+  body[data-page="project"] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
 .not-found-page {
@@ -2056,12 +2065,6 @@ body:has(.screenshot-lightbox[open]) {
   .not-found-note {
     font-size: 9px;
     letter-spacing: 0.1em;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .not-found-secondary {
-    transition: none;
   }
 }
 
@@ -2242,4 +2245,320 @@ body:has(.screenshot-lightbox[open]) {
   .about-socials {
     gap: 12px;
   }
+}
+
+/* =========================================================
+   PROJECT DETAIL THEMES
+   Each project uses its own visual identity.
+   ========================================================= */
+
+body[data-page="project"] {
+  --project-accent: #9864ff;
+  --project-accent-glow: rgba(152, 100, 255, 0.2);
+  --project-bg: #08080d;
+  --project-surface: #11111b;
+  --project-surface-raised: #191927;
+  --project-text: #f3f2fb;
+  --project-muted: #a09fb4;
+  --project-subtle: #6e6d83;
+  --project-border: rgba(179, 169, 255, 0.15);
+  --project-gradient: linear-gradient(
+    110deg,
+    var(--project-accent),
+    var(--project-accent-secondary, #4c9bff)
+  );
+
+  background: var(--project-bg);
+  color: var(--project-text);
+  color-scheme: dark;
+}
+
+body[data-page="project"]::before {
+  background:
+    radial-gradient(
+      ellipse at 12% 0%,
+      var(--project-accent-glow, transparent),
+      transparent 36%
+    ),
+    radial-gradient(
+      ellipse at 90% 35%,
+      var(--project-secondary-glow, transparent),
+      transparent 38%
+    );
+}
+
+body[data-page="project"] .site-noise {
+  opacity: var(--project-noise-opacity, 0.45);
+}
+
+body[data-page="project"] #site-header {
+  background: var(--project-header-bg, var(--project-bg));
+  border-color: var(--project-border);
+}
+
+body[data-page="project"] .primary-navigation a,
+body[data-page="project"] .back-link {
+  color: var(--project-muted);
+}
+
+body[data-page="project"] .primary-navigation a:hover,
+body[data-page="project"] .back-link:hover {
+  color: var(--project-accent);
+}
+
+body[data-page="project"] .gradient-text {
+  color: var(--project-accent);
+  background: var(--project-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body[data-page="project"] .eyebrow {
+  color: var(--project-accent);
+}
+
+body[data-page="project"] p,
+body[data-page="project"] .detail-description {
+  color: var(--project-muted);
+}
+
+body[data-page="project"] .button-primary {
+  color: var(--project-button-text, #fff);
+  background: var(--project-button-bg, var(--project-gradient));
+  border-color: var(--project-accent);
+  box-shadow: 0 6px 28px var(--project-accent-glow);
+}
+
+body[data-page="project"] .button-primary:hover {
+  background: var(--project-button-hover, var(--project-gradient));
+  filter: brightness(1.08);
+  box-shadow: 0 8px 36px var(--project-accent-glow);
+}
+
+body[data-page="project"] .button-secondary {
+  color: var(--project-text);
+  background: var(--project-surface);
+  border-color: var(--project-border);
+}
+
+body[data-page="project"] .button-secondary:hover {
+  border-color: var(--project-accent);
+  background: var(--project-surface-raised);
+}
+
+body[data-page="project"] .detail-art {
+  background:
+    radial-gradient(
+      ellipse at 50% 48%,
+      var(--project-accent-glow),
+      transparent 68%
+    ),
+    var(--project-surface);
+  border-color: var(--project-border);
+}
+
+body[data-page="project"] .detail-art-glow {
+  background: var(--project-accent-glow);
+}
+
+body[data-page="project"] .detail-sidebar,
+body[data-page="project"] .detail-info-block,
+body[data-page="project"] .feature-list li,
+body[data-page="project"] .pagination-item,
+body[data-page="project"] .screenshot-card,
+body[data-page="project"] .detail-visit {
+  border-color: var(--project-border);
+}
+
+body[data-page="project"] .detail-info-block strong,
+body[data-page="project"] .pagination-item strong {
+  color: var(--project-text);
+}
+
+body[data-page="project"] .detail-label,
+body[data-page="project"] .project-platform,
+body[data-page="project"] .detail-art-index,
+body[data-page="project"] .pagination-item > span {
+  color: var(--project-subtle);
+}
+
+body[data-page="project"] .tech-pill {
+  color: var(--project-accent);
+  border-color: var(--project-border);
+  background: var(--project-surface);
+}
+
+body[data-page="project"] .feature-list li {
+  color: var(--project-text);
+  background: var(--project-surface);
+}
+
+body[data-page="project"] .feature-list li::before {
+  color: var(--project-accent);
+}
+
+body[data-page="project"] .detail-visit {
+  background:
+    linear-gradient(120deg, var(--project-accent-glow), transparent 85%),
+    var(--project-surface);
+}
+
+body[data-page="project"] .pagination-item:hover {
+  border-color: var(--project-accent);
+  background: var(--project-surface-raised);
+}
+
+body[data-page="project"] .screenshot-count {
+  color: var(--project-accent);
+  border-color: var(--project-border);
+  background: var(--project-surface);
+}
+
+body[data-page="project"] #site-footer {
+  border-color: var(--project-border);
+}
+
+/* SKYCAST — deep navy and electric cyan */
+
+body[data-page="project"][data-project-accent="skycast"] {
+  --project-bg: #07111f;
+  --project-surface: #0d1b2c;
+  --project-surface-raised: #11243a;
+  --project-text: #edf6ff;
+  --project-muted: #8fa5bd;
+  --project-subtle: #70869e;
+  --project-border: rgba(143, 183, 219, 0.15);
+  --project-accent: #50e6ff;
+  --project-accent-secondary: #9cafff;
+  --project-accent-glow: rgba(80, 230, 255, 0.16);
+  --project-secondary-glow: rgba(107, 140, 255, 0.1);
+  --project-button-text: #04121d;
+  --project-header-bg: rgba(7, 17, 31, 0.94);
+  --project-noise-opacity: 0.25;
+  --project-selection-text: #07111f;
+}
+
+/* NEXORA — warm paper, charcoal and violet */
+
+body[data-page="project"][data-project-accent="nexora"] {
+  --project-bg: #f7f6f2;
+  --project-surface: #ffffff;
+  --project-surface-raised: #eeece6;
+  --project-text: #252523;
+  --project-muted: #777770;
+  --project-subtle: #777770;
+  --project-border: rgba(37, 37, 35, 0.13);
+  --project-accent: #6655e8;
+  --project-accent-secondary: #9488ff;
+  --project-accent-glow: rgba(102, 85, 232, 0.13);
+  --project-secondary-glow: rgba(102, 85, 232, 0.07);
+  --project-button-text: #ffffff;
+  --project-header-bg: rgba(247, 246, 242, 0.96);
+  --project-noise-opacity: 0.08;
+  --project-selection-text: #ffffff;
+  color-scheme: light;
+}
+
+/* APEX MOTORS — graphite, white and performance red */
+
+body[data-page="project"][data-project-accent="apex"] {
+  --project-bg: #090a0c;
+  --project-surface: #17191e;
+  --project-surface-raised: #202329;
+  --project-text: #f4f3f0;
+  --project-muted: #9a9da5;
+  --project-subtle: #9a9da5;
+  --project-border: rgba(255, 255, 255, 0.12);
+  --project-accent: #e52b35;
+  --project-accent-secondary: #b81724;
+  --project-accent-glow: rgba(229, 43, 53, 0.16);
+  --project-secondary-glow: rgba(255, 255, 255, 0.035);
+  --project-button-text: #ffffff;
+  --project-header-bg: rgba(9, 10, 12, 0.95);
+  --project-noise-opacity: 0.22;
+  --project-selection-text: #ffffff;
+}
+
+/* SAFFRON & EMBER — charcoal and elegant gold */
+
+body[data-page="project"][data-project-accent="saffron"] {
+  --project-bg: #11110f;
+  --project-surface: #1c1c18;
+  --project-surface-raised: #22221d;
+  --project-text: #f2eee6;
+  --project-muted: #aaa69c;
+  --project-subtle: #aaa69c;
+  --project-border: rgba(228, 200, 148, 0.18);
+  --project-accent: #c9a66b;
+  --project-accent-secondary: #e4c894;
+  --project-accent-glow: rgba(201, 166, 107, 0.14);
+  --project-secondary-glow: rgba(201, 166, 107, 0.06);
+  --project-button-text: #17140e;
+  --project-header-bg: rgba(17, 17, 15, 0.96);
+  --project-noise-opacity: 0.18;
+  --project-selection-text: #11110f;
+}
+
+/* COOKIFY — warm light surfaces and food-inspired orange */
+
+body[data-page="project"][data-project-accent="cookify"] {
+  --project-bg: #fff9f2;
+  --project-surface: #ffffff;
+  --project-surface-raised: #fff0e5;
+  --project-text: #30251f;
+  --project-muted: #75665d;
+  --project-subtle: #948176;
+  --project-border: rgba(120, 82, 55, 0.16);
+  --project-accent: #f4773b;
+  --project-accent-secondary: #ef493c;
+  --project-accent-glow: rgba(244, 119, 59, 0.17);
+  --project-secondary-glow: rgba(239, 73, 60, 0.09);
+  --project-button-text: #ffffff;
+  --project-header-bg: rgba(255, 249, 242, 0.96);
+  --project-noise-opacity: 0.04;
+  --project-detail-padding-top: 55px;
+  --project-detail-title-width: 900px;
+  --project-detail-art-height: 430px;
+  --project-detail-art-radius: 24px;
+  --project-selection-text: #ffffff;
+  --project-detail-art-background:
+    radial-gradient(
+      ellipse at 50% 45%,
+      rgba(255, 150, 91, 0.2),
+      transparent 65%
+    ),
+    linear-gradient(135deg, #fff1e5, #fffaf5 55%, #ffe9db);
+  --project-detail-art-shadow: 0 24px 70px rgba(115, 66, 36, 0.09);
+  --project-logo-width: min(45%, 360px);
+  --project-logo-height: 340px;
+  --project-logo-shadow: drop-shadow(0 16px 30px rgba(137, 69, 35, 0.12));
+  --project-art-index-color: #9b6d56;
+  --project-visit-radius: 18px;
+  --project-visit-background:
+    radial-gradient(
+      ellipse at 90% 0%,
+      rgba(244, 119, 59, 0.12),
+      transparent 55%
+    ),
+    #ffffff;
+  --project-visit-shadow: 0 12px 35px rgba(115, 66, 36, 0.05);
+  --project-feature-radius: 14px;
+  --project-feature-shadow: 0 5px 18px rgba(115, 66, 36, 0.035);
+  --project-gallery-padding-top: 60px;
+  --project-screenshot-border: rgba(120, 82, 55, 0.14);
+  --project-screenshot-radius: 16px;
+  --project-screenshot-shadow: 0 10px 28px rgba(115, 66, 36, 0.055);
+  --project-screenshot-hover-border: rgba(244, 119, 59, 0.5);
+  --project-screenshot-hover-shadow: 0 16px 36px rgba(115, 66, 36, 0.09);
+  --project-screenshot-background: #fffaf5;
+  --project-screenshot-number: #ef7040;
+  color-scheme: light;
+}
+
+/* PROJECT TEXT SELECTION — matches each project's accent */
+
+body[data-page="project"] ::selection {
+  background-color: var(--project-accent);
+  color: var(--project-selection-text, #ffffff);
 }
